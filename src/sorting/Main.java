@@ -4,6 +4,7 @@ import java.util.*;
 
 public class Main {
     private static final String TYPE = "-dataType";
+    private static final String SORT = "-sortIntegers";
 
     interface Statistical<T> {
         abstract List<T> getList();
@@ -66,6 +67,15 @@ public class Main {
         public void printLargest() {
             System.out.println("The greatest number: " + getMax() + " (" +
                     getCount() + " time(s), " + getPercentage() + "%).");
+        }
+
+        public void printSorted() {
+            System.out.print("Sorted data: ");
+            List<Long> copy = new ArrayList<>(lst);
+            Collections.sort(copy);
+            for (Long elem : copy) {
+                System.out.print(elem + " ");
+            }
         }
     }
 
@@ -180,16 +190,26 @@ public class Main {
     public static void main(final String[] args) {
         DataType dataType;
         Statistical stat;
-        if (args.length > 0 && args[0].equals(TYPE)) {
-            dataType = DataType.valueOf(args[1].toUpperCase());
-        } else {
-            dataType = DataType.WORD;
+        if (args.length > 0 && Arrays.asList(args).contains(SORT)) {
+            LongDataType longDataType = new LongDataType();
+            while (longDataType.hasNext()) {
+                longDataType.add();
+            }
+            longDataType.printTotal();
+            longDataType.printSorted();
         }
-        stat = DataTypeFactory.getDataType(dataType);
-        while (stat.hasNext()) {
-            stat.add();
+        else {
+            if (args.length > 0 && args[0].equals(TYPE)) {
+                dataType = DataType.valueOf(args[1].toUpperCase());
+            } else {
+                dataType = DataType.WORD;
+            }
+            stat = DataTypeFactory.getDataType(dataType);
+            while (stat.hasNext()) {
+                stat.add();
+            }
+            stat.printTotal();
+            stat.printLargest();
         }
-        stat.printTotal();
-        stat.printLargest();
     }
 }
