@@ -3,8 +3,8 @@ package sorting;
 import java.util.*;
 
 public class Main {
-    private static final String TYPE = "-dataType";
-    private static final String SORT = "-sortIntegers";
+    private static final String DATA_TYPE = "-dataType";
+    private static final String SORT_TYPE = "-sortingType";
 
     interface Statistical<T> {
         abstract List<T> getList();
@@ -17,13 +17,15 @@ public class Main {
 
         abstract T getMax();
 
-        abstract int getCount();
+        abstract long getCount(T elem);
 
-        abstract int  getPercentage();
+        abstract int getPercentage(T elem);
 
         abstract void printTotal();
 
         abstract void printLargest();
+
+        abstract void printSorted(SortingType sortingType);
     }
 
     private static class LongDataType implements Statistical<Long> {
@@ -50,32 +52,72 @@ public class Main {
             return Collections.max(lst);
         };
 
-        public int getCount() {
-            Long max = getMax();
-            return (int) lst.stream().filter(a -> a.equals(max)).count();
+        public long getCount(Long elem) {
+            return lst.stream().filter(a -> a.equals(elem)).count();
         }
 
-        public int getPercentage() {
-            double result = (double) getCount() / lst.size();
+        public int getPercentage(Long elem) {
+            double result = (double) getCount(elem) / lst.size();
             return (int) (result * 100);
-        };
+        }
 
         public void printTotal() {
             System.out.println("Total numbers: " + getTotal() + ".");
         }
 
         public void printLargest() {
-            System.out.println("The greatest number: " + getMax() + " (" +
-                    getCount() + " time(s), " + getPercentage() + "%).");
+            Long max = getMax();
+            System.out.println("The greatest number: " + max + " (" +
+                    getCount(max) + " time(s), " + getPercentage(max) + "%).");
         }
 
-        public void printSorted() {
-            System.out.print("Sorted data: ");
+        public void printSorted(SortingType sortingType) {
+            //TODO: same for all types
+            if (sortingType.equals(SortingType.BYCOUNT)) {
+                printSortedByCount();
+            } else {
+                printSortedNatural();
+            }
+        }
+
+        private void printSortedNatural() {
+            System.out.print("Sorted data:");
             List<Long> copy = new ArrayList<>(lst);
             Collections.sort(copy);
             for (Long elem : copy) {
-                System.out.print(elem + " ");
+                System.out.print(" " + elem);
             }
+        }
+
+        private void printSortedByCount() {
+            //TODO: map
+            /*
+            Total words: 7.
+            -2: 1 time(s), 14
+            33: 1 time(s), 14
+            4: 1 time(s), 14
+            42: 1 time(s), 14
+            1: 3 time(s), 42
+            1: 3 time(s), 42
+            1: 3 time(s), 42
+
+            Process finished with exit code 0
+            тут все таки Map нужен
+             */
+            List<Long> copy = new ArrayList<>(lst);
+            Collections.sort(copy, getByCountComparator());
+            for (Long elem : copy) {
+                System.out.println(elem + ": " + getCount(elem) + " time(s), " + getPercentage(elem));
+            }
+        }
+
+        private Comparator<Long> getByCountComparator() {
+            return new Comparator<Long>() {
+                @Override
+                public int compare(Long o1, Long o2) {
+                    return Long.compare(getCount(o1), getCount(o2));
+                }
+            };
         }
     }
 
@@ -103,23 +145,57 @@ public class Main {
             return lst.stream().max(Comparator.comparingInt(String::length)).orElse("");
         };
 
-        public int getCount() {
-            String max = getMax();
-            return (int) lst.stream().filter(line -> line.equals(max)).count();
+        public long getCount(String elem) {
+            return lst.stream().filter(a -> a.equals(elem)).count();
         }
 
-        public int getPercentage() {
-            double result = (double) getCount() / lst.size();
+        public int getPercentage(String elem) {
+            double result = (double) getCount(elem) / lst.size();
             return (int) (result * 100);
-        };
+        }
 
         public void printTotal() {
             System.out.println("Total lines: " + getTotal() + ".");
         }
 
         public void printLargest() {
-            System.out.println("The longest line: \n" + getMax() + "\n(" +
-                    getCount() + " time(s), " + getPercentage() + "%).");
+            String max = getMax();
+            System.out.println("The longest line: \n" + max + "\n(" +
+                    getCount(max) + " time(s), " + getPercentage(max) + "%).");
+        }
+
+        public void printSorted(SortingType sortingType) {
+            if (sortingType.equals(SortingType.BYCOUNT)) {
+                printSortedByCount();
+            } else {
+                printSortedNatural();
+            }
+        }
+
+        private void printSortedNatural() {
+            System.out.println("Sorted data:");
+            List<String> copy = new ArrayList<>(lst);
+            Collections.sort(copy);
+            for (String elem : copy) {
+                System.out.println(elem);
+            }
+        }
+
+        private void printSortedByCount() {
+            List<String> copy = new ArrayList<>(lst);
+            Collections.sort(copy, getByCountComparator());
+            for (String elem : copy) {
+                System.out.println(elem + ": " + getCount(elem) + " time(s), " + getPercentage(elem));
+            }
+        }
+
+        private Comparator<String> getByCountComparator() {
+            return new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    return Long.compare(getCount(o1), getCount(o2));
+                }
+            };
         }
     }
 
@@ -147,13 +223,12 @@ public class Main {
             return lst.stream().max(Comparator.comparingInt(String::length)).orElse("");
         };
 
-        public int getCount() {
-            String max = getMax();
-            return (int) lst.stream().filter(line -> line.equals(max)).count();
+        public long getCount(String elem) {
+            return lst.stream().filter(a -> a.equals(elem)).count();
         }
 
-        public int getPercentage() {
-            double result = (double) getCount() / lst.size();
+        public int getPercentage(String elem) {
+            double result = (double) getCount(elem) / lst.size();
             return (int) (result * 100);
         };
 
@@ -162,8 +237,43 @@ public class Main {
         }
 
         public void printLargest() {
-            System.out.println("The longest word: " + getMax() + " (" +
-                    getCount() + " time(s), " + getPercentage() + "%).");
+            String max = getMax();
+            System.out.println("The longest word: " + max + " (" +
+                    getCount(max) + " time(s), " + getPercentage(max) + "%).");
+        }
+
+        public void printSorted(SortingType sortingType) {
+            if (sortingType.equals(SortingType.BYCOUNT)) {
+                printSortedByCount();
+            } else {
+                printSortedNatural();
+            }
+        }
+
+        private void printSortedNatural() {
+            System.out.println("Sorted data:");
+            List<String> copy = new ArrayList<>(lst);
+            Collections.sort(copy);
+            for (String elem : copy) {
+                System.out.println(elem);
+            }
+        }
+
+        private void printSortedByCount() {
+            List<String> copy = new ArrayList<>(lst);
+            Collections.sort(copy, getByCountComparator());
+            for (String elem : copy) {
+                System.out.println(elem + ": " + getCount(elem) + " time(s), " + getPercentage(elem));
+            }
+        }
+
+        private Comparator<String> getByCountComparator() {
+            return new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    return Long.compare(getCount(o1), getCount(o2));
+                }
+            };
         }
     }
 
@@ -187,29 +297,53 @@ public class Main {
         }
     }
 
+    private enum SortingType {
+        NATURAL,
+        BYCOUNT;
+    }
+
     public static void main(final String[] args) {
-        DataType dataType;
+        DataType dataType = DataType.WORD;
+        SortingType sortingType = SortingType.NATURAL;
         Statistical stat;
-        if (args.length > 0 && Arrays.asList(args).contains(SORT)) {
-            LongDataType longDataType = new LongDataType();
-            while (longDataType.hasNext()) {
-                longDataType.add();
+        List<String> argsLst = Arrays.asList(args);
+
+        if (argsLst.size() > 0) {
+            if (argsLst.contains(SORT_TYPE)) {
+                sortingType = SortingType.valueOf(argsLst.get(argsLst.indexOf(SORT_TYPE) + 1).toUpperCase());
             }
-            longDataType.printTotal();
-            longDataType.printSorted();
+            if (argsLst.contains(DATA_TYPE)) {
+                dataType = DataType.valueOf(argsLst.get(argsLst.indexOf(DATA_TYPE) + 1).toUpperCase());
+            }
         }
-        else {
-            if (args.length > 0 && args[0].equals(TYPE)) {
-                dataType = DataType.valueOf(args[1].toUpperCase());
-            } else {
-                dataType = DataType.WORD;
-            }
-            stat = DataTypeFactory.getDataType(dataType);
-            while (stat.hasNext()) {
-                stat.add();
-            }
-            stat.printTotal();
-            stat.printLargest();
+        stat = DataTypeFactory.getDataType(dataType);
+        while (stat.hasNext()) {
+            stat.add();
         }
+        stat.printTotal();
+        stat.printSorted(sortingType);
+
+//        if (args.length > 0 && argsLst.contains(SORT)) {
+//            sortingType = SortingType.valueOf(argsLst.get(argsLst.indexOf(SORT) + 1));
+//            LongDataType longDataType = new LongDataType();
+//            while (longDataType.hasNext()) {
+//                longDataType.add();
+//            }
+//            longDataType.printTotal();
+//            longDataType.printSorted();
+//        }
+//        else {
+//            if (args.length > 0 && args[0].equals(TYPE)) {
+//                dataType = DataType.valueOf(args[1].toUpperCase());
+//            } else {
+//                dataType = DataType.WORD;
+//            }
+//            stat = DataTypeFactory.getDataType(dataType);
+//            while (stat.hasNext()) {
+//                stat.add();
+//            }
+//            stat.printTotal();
+//            stat.printLargest();
+//        }
     }
 }
