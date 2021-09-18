@@ -37,11 +37,15 @@ public class Main {
         }
 
         public boolean hasNext() {
-            return scanner.hasNextLong();
+            return scanner.hasNext();
         }
 
         public void add() {
-            lst.add(scanner.nextLong());
+            try {
+                lst.add(scanner.nextLong());
+            } catch (InputMismatchException e) {
+                System.out.println("\"" + scanner.next() + "\" is not a long. It will be skipped.");
+            }
         }
 
         public int getTotal() {
@@ -90,24 +94,11 @@ public class Main {
         }
 
         private void printSortedByCount() {
-            //TODO: map
-            /*
-            Total words: 7.
-            -2: 1 time(s), 14
-            33: 1 time(s), 14
-            4: 1 time(s), 14
-            42: 1 time(s), 14
-            1: 3 time(s), 42
-            1: 3 time(s), 42
-            1: 3 time(s), 42
-
-            Process finished with exit code 0
-            тут все таки Map нужен
-             */
             List<Long> copy = new ArrayList<>(lst);
             Collections.sort(copy, getByCountComparator());
-            for (Long elem : copy) {
-                System.out.println(elem + ": " + getCount(elem) + " time(s), " + getPercentage(elem));
+            Set<Long> set = new LinkedHashSet<>(copy);
+            for (Long elem : set) {
+                System.out.println(elem + ": " + getCount(elem) + " time(s), " + getPercentage(elem) + "%");
             }
         }
 
@@ -115,7 +106,8 @@ public class Main {
             return new Comparator<Long>() {
                 @Override
                 public int compare(Long o1, Long o2) {
-                    return Long.compare(getCount(o1), getCount(o2));
+                    int result = Long.compare(getCount(o1), getCount(o2));
+                    return result == 0 ? Long.compare(o1, o2) : result;
                 }
             };
         }
@@ -184,8 +176,9 @@ public class Main {
         private void printSortedByCount() {
             List<String> copy = new ArrayList<>(lst);
             Collections.sort(copy, getByCountComparator());
-            for (String elem : copy) {
-                System.out.println(elem + ": " + getCount(elem) + " time(s), " + getPercentage(elem));
+            Set<String> set = new LinkedHashSet<>(copy);
+            for (String elem : set) {
+                System.out.println(elem + ": " + getCount(elem) + " time(s), " + getPercentage(elem) + "%");
             }
         }
 
@@ -193,7 +186,8 @@ public class Main {
             return new Comparator<String>() {
                 @Override
                 public int compare(String o1, String o2) {
-                    return Long.compare(getCount(o1), getCount(o2));
+                    int result = Long.compare(getCount(o1), getCount(o2));
+                    return result == 0 ? o1.compareTo(o2) : result;
                 }
             };
         }
@@ -262,8 +256,9 @@ public class Main {
         private void printSortedByCount() {
             List<String> copy = new ArrayList<>(lst);
             Collections.sort(copy, getByCountComparator());
-            for (String elem : copy) {
-                System.out.println(elem + ": " + getCount(elem) + " time(s), " + getPercentage(elem));
+            Set<String> set = new LinkedHashSet<>(copy);
+            for (String elem : set) {
+                System.out.println(elem + ": " + getCount(elem) + " time(s), " + getPercentage(elem) + "%");
             }
         }
 
@@ -271,7 +266,8 @@ public class Main {
             return new Comparator<String>() {
                 @Override
                 public int compare(String o1, String o2) {
-                    return Long.compare(getCount(o1), getCount(o2));
+                    int result = Long.compare(getCount(o1), getCount(o2));
+                    return result == 0 ? o1.compareTo(o2) : result;
                 }
             };
         }
@@ -308,42 +304,41 @@ public class Main {
         Statistical stat;
         List<String> argsLst = Arrays.asList(args);
 
-        if (argsLst.size() > 0) {
-            if (argsLst.contains(SORT_TYPE)) {
-                sortingType = SortingType.valueOf(argsLst.get(argsLst.indexOf(SORT_TYPE) + 1).toUpperCase());
-            }
-            if (argsLst.contains(DATA_TYPE)) {
-                dataType = DataType.valueOf(argsLst.get(argsLst.indexOf(DATA_TYPE) + 1).toUpperCase());
+        for (String arg : argsLst) {
+            switch (arg) {
+                case SORT_TYPE:
+
             }
         }
+
+        for (int i = 0; i < args.length; i++) {
+            switch (args[i]) {
+                case SORT_TYPE:
+                    try {
+                        sortingType = SortingType.valueOf(args[++i].toUpperCase());
+                    } catch (Exception e) {
+                        System.out.println("No sorting type defined!");
+                        System.exit(1);
+                    }
+                    break;
+                case DATA_TYPE:
+                    try {
+                        dataType = DataType.valueOf(args[++i].toUpperCase());
+                    } catch (Exception e) {
+                        System.out.println("No data type defined!");
+                        System.exit(2);
+                    }
+                    break;
+                default:
+                    System.out.println("\"" + args[i] + "\" is not a valid parameter. It will be skipped.");
+            }
+        }
+
         stat = DataTypeFactory.getDataType(dataType);
         while (stat.hasNext()) {
             stat.add();
         }
         stat.printTotal();
         stat.printSorted(sortingType);
-
-//        if (args.length > 0 && argsLst.contains(SORT)) {
-//            sortingType = SortingType.valueOf(argsLst.get(argsLst.indexOf(SORT) + 1));
-//            LongDataType longDataType = new LongDataType();
-//            while (longDataType.hasNext()) {
-//                longDataType.add();
-//            }
-//            longDataType.printTotal();
-//            longDataType.printSorted();
-//        }
-//        else {
-//            if (args.length > 0 && args[0].equals(TYPE)) {
-//                dataType = DataType.valueOf(args[1].toUpperCase());
-//            } else {
-//                dataType = DataType.WORD;
-//            }
-//            stat = DataTypeFactory.getDataType(dataType);
-//            while (stat.hasNext()) {
-//                stat.add();
-//            }
-//            stat.printTotal();
-//            stat.printLargest();
-//        }
     }
 }
