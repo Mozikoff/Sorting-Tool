@@ -1,10 +1,13 @@
 package sorting;
 
+import java.io.*;
 import java.util.*;
 
 public class Main {
     private static final String DATA_TYPE = "-dataType";
     private static final String SORT_TYPE = "-sortingType";
+    private static final String INPUT_FILE = "-inputFile";
+    private static final String OUTPUT_FILE = "-outputFile";
 
     interface Statistical<T> {
         abstract List<T> getList();
@@ -28,9 +31,25 @@ public class Main {
         abstract void printSorted(SortingType sortingType);
     }
 
-    private static class LongDataType implements Statistical<Long> {
+    private static abstract class BaseDataType {
+        protected PrintWriter writer;
+        protected Scanner scanner;
+
+        void setWriter(PrintWriter writer) {
+            this.writer = writer;
+        }
+
+        void setScanner(Scanner scanner) {
+            this.scanner = scanner;
+        }
+
+        void closeResources() {
+            scanner.close();
+        }
+    }
+
+    private static class LongDataType extends BaseDataType implements Statistical<Long> {
         private final List<Long> lst = new ArrayList<>();
-        private final Scanner scanner = new Scanner(System.in);
 
         public List<Long> getList() {
             return lst;
@@ -44,8 +63,9 @@ public class Main {
             try {
                 lst.add(scanner.nextLong());
             } catch (InputMismatchException e) {
-                System.out.println("\"" + scanner.next() + "\" is not a long. It will be skipped.");
+                writer.println("\"" + scanner.next() + "\" is not a long. It will be skipped.");
             }
+            writer.flush();
         }
 
         public int getTotal() {
@@ -66,13 +86,15 @@ public class Main {
         }
 
         public void printTotal() {
-            System.out.println("Total numbers: " + getTotal() + ".");
+            writer.println("Total numbers: " + getTotal() + ".");
+            writer.flush();
         }
 
         public void printLargest() {
             Long max = getMax();
-            System.out.println("The greatest number: " + max + " (" +
+            writer.println("The greatest number: " + max + " (" +
                     getCount(max) + " time(s), " + getPercentage(max) + "%).");
+            writer.flush();
         }
 
         public void printSorted(SortingType sortingType) {
@@ -85,12 +107,13 @@ public class Main {
         }
 
         private void printSortedNatural() {
-            System.out.print("Sorted data:");
+            writer.print("Sorted data:");
             List<Long> copy = new ArrayList<>(lst);
             Collections.sort(copy);
             for (Long elem : copy) {
-                System.out.print(" " + elem);
+                writer.print(" " + elem);
             }
+            writer.flush();
         }
 
         private void printSortedByCount() {
@@ -98,8 +121,9 @@ public class Main {
             Collections.sort(copy, getByCountComparator());
             Set<Long> set = new LinkedHashSet<>(copy);
             for (Long elem : set) {
-                System.out.println(elem + ": " + getCount(elem) + " time(s), " + getPercentage(elem) + "%");
+                writer.println(elem + ": " + getCount(elem) + " time(s), " + getPercentage(elem) + "%");
             }
+            writer.flush();
         }
 
         private Comparator<Long> getByCountComparator() {
@@ -113,9 +137,8 @@ public class Main {
         }
     }
 
-    public static class LineDataType implements Statistical<String> {
+    public static class LineDataType extends BaseDataType implements Statistical<String> {
         private final List<String> lst = new ArrayList<>();
-        private final Scanner scanner = new Scanner(System.in);
 
         public List<String> getList() {
             return lst;
@@ -147,13 +170,15 @@ public class Main {
         }
 
         public void printTotal() {
-            System.out.println("Total lines: " + getTotal() + ".");
+            writer.println("Total lines: " + getTotal() + ".");
+            writer.flush();
         }
 
         public void printLargest() {
             String max = getMax();
-            System.out.println("The longest line: \n" + max + "\n(" +
+            writer.println("The longest line: \n" + max + "\n(" +
                     getCount(max) + " time(s), " + getPercentage(max) + "%).");
+            writer.flush();
         }
 
         public void printSorted(SortingType sortingType) {
@@ -165,12 +190,13 @@ public class Main {
         }
 
         private void printSortedNatural() {
-            System.out.println("Sorted data:");
+            writer.println("Sorted data:");
             List<String> copy = new ArrayList<>(lst);
             Collections.sort(copy);
             for (String elem : copy) {
-                System.out.println(elem);
+                writer.println(elem);
             }
+            writer.flush();
         }
 
         private void printSortedByCount() {
@@ -178,8 +204,9 @@ public class Main {
             Collections.sort(copy, getByCountComparator());
             Set<String> set = new LinkedHashSet<>(copy);
             for (String elem : set) {
-                System.out.println(elem + ": " + getCount(elem) + " time(s), " + getPercentage(elem) + "%");
+                writer.println(elem + ": " + getCount(elem) + " time(s), " + getPercentage(elem) + "%");
             }
+            writer.flush();
         }
 
         private Comparator<String> getByCountComparator() {
@@ -193,9 +220,8 @@ public class Main {
         }
     }
 
-    public static class WordDataType implements Statistical<String> {
+    public static class WordDataType extends BaseDataType implements Statistical<String> {
         private final List<String> lst = new ArrayList<>();
-        private final Scanner scanner = new Scanner(System.in);
 
         public List<String> getList() {
             return lst;
@@ -227,13 +253,15 @@ public class Main {
         };
 
         public void printTotal() {
-            System.out.println("Total words: " + getTotal() + ".");
+            writer.println("Total words: " + getTotal() + ".");
+            writer.flush();
         }
 
         public void printLargest() {
             String max = getMax();
-            System.out.println("The longest word: " + max + " (" +
+            writer.println("The longest word: " + max + " (" +
                     getCount(max) + " time(s), " + getPercentage(max) + "%).");
+            writer.flush();
         }
 
         public void printSorted(SortingType sortingType) {
@@ -245,12 +273,13 @@ public class Main {
         }
 
         private void printSortedNatural() {
-            System.out.println("Sorted data:");
+            writer.println("Sorted data:");
             List<String> copy = new ArrayList<>(lst);
             Collections.sort(copy);
             for (String elem : copy) {
-                System.out.println(elem);
+                writer.println(elem);
             }
+            writer.flush();
         }
 
         private void printSortedByCount() {
@@ -258,8 +287,9 @@ public class Main {
             Collections.sort(copy, getByCountComparator());
             Set<String> set = new LinkedHashSet<>(copy);
             for (String elem : set) {
-                System.out.println(elem + ": " + getCount(elem) + " time(s), " + getPercentage(elem) + "%");
+                writer.println(elem + ": " + getCount(elem) + " time(s), " + getPercentage(elem) + "%");
             }
+            writer.flush();
         }
 
         private Comparator<String> getByCountComparator() {
@@ -274,12 +304,41 @@ public class Main {
     }
 
     public static class DataTypeFactory {
-        public static Statistical getDataType(DataType d) {
-            return switch (d) {
-                case LONG -> new LongDataType();
-                case LINE -> new LineDataType();
-                default -> new WordDataType();
-            };
+        public static Statistical getDataType(DataType d, String inputFileName, String outputFileName) {
+            PrintWriter writer = new PrintWriter(System.out);
+            Scanner scanner = new Scanner(System.in);
+            try {
+                if (Objects.nonNull(inputFileName)) {
+                    scanner = new Scanner(new File(inputFileName));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (Objects.nonNull(outputFileName)) {
+                    writer = new PrintWriter(new File(outputFileName));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            switch (d) {
+                case LONG:
+                    LongDataType longDataType = new LongDataType();
+                    longDataType.setScanner(scanner);
+                    longDataType.setWriter(writer);
+                    return longDataType;
+                case LINE:
+                    LineDataType lineDataType = new LineDataType();
+                    lineDataType.setScanner(scanner);
+                    lineDataType.setWriter(writer);
+                    return lineDataType;
+                default:
+                    WordDataType wordDataType = new WordDataType();
+                    wordDataType.setScanner(scanner);
+                    wordDataType.setWriter(writer);
+                    return wordDataType;
+            }
         }
     }
 
@@ -301,16 +360,9 @@ public class Main {
     public static void main(final String[] args) {
         DataType dataType = DataType.WORD;
         SortingType sortingType = SortingType.NATURAL;
+        String inputFileName = null;
+        String outputFileName = null;
         Statistical stat;
-        List<String> argsLst = Arrays.asList(args);
-
-        for (String arg : argsLst) {
-            switch (arg) {
-                case SORT_TYPE:
-
-            }
-        }
-
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case SORT_TYPE:
@@ -329,16 +381,24 @@ public class Main {
                         System.exit(2);
                     }
                     break;
+                case INPUT_FILE:
+                    inputFileName = args[++i];
+                    break;
+                case OUTPUT_FILE:
+                    outputFileName = args[++i];
+                    break;
                 default:
                     System.out.println("\"" + args[i] + "\" is not a valid parameter. It will be skipped.");
             }
         }
 
-        stat = DataTypeFactory.getDataType(dataType);
+        stat = DataTypeFactory.getDataType(dataType, inputFileName, outputFileName);
         while (stat.hasNext()) {
             stat.add();
         }
         stat.printTotal();
         stat.printSorted(sortingType);
+        BaseDataType baseDataType = (BaseDataType) stat;
+        baseDataType.closeResources();
     }
 }
